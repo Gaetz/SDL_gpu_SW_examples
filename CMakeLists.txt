@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(SDL_gpu_examples)
+set(CMAKE_CXX_STANDARD 20)
 cmake_policy(SET CMP0135 NEW)
 
 # Download SDL3 from github

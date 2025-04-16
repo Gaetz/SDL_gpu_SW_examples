@@ -19,6 +19,4 @@ private:
     SDL_GPUGraphicsPipeline* pipeline;
 };
 
-
-
 #endif //DEMO001BASICSBASICTRIANGLE_HPP

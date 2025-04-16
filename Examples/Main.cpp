@@ -4,9 +4,19 @@
 
 #include "Demo001_Basics_BasicTriangle.hpp"
 
-int main()
-{
-    Context context;
+int main(int argc, char **argv) {
+    Context context {};
+
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
+    {
+        SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
+
+    InitializeAssetLoader(&context);
+
+
+
     Scene* scene = new Demo001_Basics_BasicTriangle();
     scene->Init(&context);
 
@@ -16,8 +26,8 @@ int main()
     while (running) {
 
         // Compute delta time
-        int currentTime = SDL_GetTicks();
-        context.deltaTime = (currentTime - previousTime) / 1000.0f;
+        Uint64 currentTime = SDL_GetTicks();
+        context.deltaTime = (float)(currentTime - previousTime) / 1000.0f;
 
         // Main loop
         SDL_Event event;
@@ -35,7 +45,6 @@ int main()
         }
     }
     scene->Quit(&context);
-
 
     return 0;
 }
