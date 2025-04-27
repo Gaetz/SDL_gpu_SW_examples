@@ -4,6 +4,72 @@
 
 #include "Demo001_Basics_BasicTriangle.hpp"
 #include "Data.hpp"
+#include "glm/mat4x4.hpp"
+
+// Example with an instanced vertex buffer, if we donc want to use a big uniform
+//https://github.com/TheSpydog/SDL_gpu_examples/blob/93d94af8a9008309e99ca1b6b415476685c66501/Examples/PullSpriteBatch.c
+
+// Vertex shader code
+
+/*
+#version 450
+
+struct SpriteData {
+    vec3 Position;
+    float Rotation;
+    vec2 Scale;
+    vec2 Padding;
+    float TexU, TexV, TexW, TexH;
+    vec4 Color;
+};
+
+layout(std430, binding = 0) readonly buffer DataBuffer {
+    SpriteData sprites[];
+};
+
+layout(std140, binding = 1) uniform UniformBlock {
+    mat4 ViewProjectionMatrix;
+};
+
+const uint triangleIndices[6] = uint[6](0, 1, 2, 3, 2, 1);
+const vec2 vertexPos[4] = vec2[4](
+    vec2(0.0, 0.0),
+    vec2(1.0, 0.0),
+    vec2(0.0, 1.0),
+    vec2(1.0, 1.0)
+);
+
+layout(location = 0) out vec2 Texcoord;
+layout(location = 1) out vec4 Color;
+
+void main() {
+    uint id = gl_VertexID;
+    uint spriteIndex = id / 6;
+    uint vert = triangleIndices[id % 6];
+    SpriteData sprite = sprites[spriteIndex];
+
+    vec2 texcoord[4] = vec2[4](
+        vec2(sprite.TexU,               sprite.TexV),
+        vec2(sprite.TexU + sprite.TexW, sprite.TexV),
+        vec2(sprite.TexU,               sprite.TexV + sprite.TexH),
+        vec2(sprite.TexU + sprite.TexW, sprite.TexV + sprite.TexH)
+    );
+
+    float c = cos(sprite.Rotation);
+    float s = sin(sprite.Rotation);
+
+    vec2 coord = vertexPos[vert];
+    coord *= sprite.Scale;
+    mat2 rotation = mat2(c, s, -s, c);
+    coord = rotation * coord;
+
+    vec3 coordWithDepth = vec3(coord + sprite.Position.xy, sprite.Position.z);
+
+    gl_Position = ViewProjectionMatrix * vec4(coordWithDepth, 1.0);
+    Texcoord = texcoord[vert];
+    Color = sprite.Color;
+}
+*/
 
 int Demo001_Basics_BasicTriangle::Init(Context* context) {
     // Init SDL, window and device
@@ -25,6 +91,26 @@ int Demo001_Basics_BasicTriangle::Init(Context* context) {
         return -1;
     }
 
+    // Configure the uniform buffer for set = 1
+    SDL_GPUBufferCreateInfo uboCreateInfo = {
+        .usage = SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ,
+        .size = sizeof(glm::mat4) * 3, // Space for projection, view, and model matrices
+    };
+
+    SDL_GPUBuffer* uniformBuffer = SDL_CreateGPUBuffer(context->device, &uboCreateInfo);
+    if (!uniformBuffer) {
+        SDL_Log("Failed to create uniform buffer: %s", SDL_GetError());
+        return -1;
+    }
+
+    // Bind the uniform buffer to set = 1
+    SDL_GPUBufferBinding uniformBinding = {
+        .buffer = uniformBuffer,
+        .offset = 0,
+    };
+
+    SDL_BindGPUVertexStorageBuffers(nullptr, 1, &uniformBinding, 1);
+
     // Create the pipelines
     SDL_GPUGraphicsPipelineCreateInfo pipelineCreateInfo = {
             .vertex_shader = vertexShader,
@@ -34,7 +120,7 @@ int Demo001_Basics_BasicTriangle::Init(Context* context) {
                                                                                                  .slot = 0,
                                                                                                  .pitch = sizeof(PositionColorVertex),
                                                                                                  .input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX,
-                                                                                                 .instance_step_rate = 0
+                                                                                                 .instance_step_rate = 0,
                                                                                          }},
                     .num_vertex_buffers = 1,
                     .vertex_attributes = new SDL_GPUVertexAttribute[2] {{
@@ -47,7 +133,7 @@ int Demo001_Basics_BasicTriangle::Init(Context* context) {
                                                                                 .location = 1,
                                                                                 .buffer_slot = 0,
                                                                                 .format = SDL_GPU_VERTEXELEMENTFORMAT_BYTE4,
-                                                                                .offset = sizeof(char) * 4
+                                                                                .offset = sizeof(float) * 3
                                                                         }},
                     .num_vertex_attributes = 2,
             },
@@ -74,6 +160,48 @@ int Demo001_Basics_BasicTriangle::Init(Context* context) {
     // Clean up shader resources
     SDL_ReleaseGPUShader(context->device, vertexShader);
     SDL_ReleaseGPUShader(context->device, fragmentShader);
+
+    // Create the vertex buffer
+    SDL_GPUBufferCreateInfo vertexBufferCreateInfo = {
+        .usage = SDL_GPU_BUFFERUSAGE_VERTEX,
+        .size = sizeof(PositionColorVertex) * 3
+    };
+    SDL_GPUBuffer* vertexBuffer = SDL_CreateGPUBuffer(context->device, &vertexBufferCreateInfo);
+
+    // To get data into the vertex buffer, we have to use a transfer buffer
+    constexpr SDL_GPUTransferBufferCreateInfo transferBufferCreateInfo = {
+        .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+        .size = sizeof(PositionColorVertex) * 3
+    };
+    SDL_GPUTransferBuffer* transferBuffer = SDL_CreateGPUTransferBuffer(context->device, &transferBufferCreateInfo);
+
+    // Map the transfer buffer and fill it with data (data is bound to the transfer buffer)
+    auto transferData = static_cast<PositionColorVertex*>(SDL_MapGPUTransferBuffer(context->device, transferBuffer, false));
+    transferData[0] = (PositionColorVertex) {  -0.5,  -0.5, 0, 255,   0,   0, 255 };
+    transferData[1] = (PositionColorVertex) {   0.5,  -0.5, 0,   0, 255,   0, 255 };
+    transferData[2] = (PositionColorVertex) {     0,   0.5, 0,   0,   0, 255, 255 };
+    SDL_UnmapGPUTransferBuffer(context->device, transferBuffer);
+
+    // Upload the transfer data to the vertex buffer
+    SDL_GPUTransferBufferLocation transferBufferLocation = {
+        .transfer_buffer = transferBuffer,
+        .offset = 0
+    };
+    SDL_GPUBufferRegion vertexBufferRegion = {
+        .buffer = vertexBuffer,
+        .offset = 0,
+        .size = sizeof(PositionColorVertex) * 3
+    };
+
+    // Upload the transfer data to the vertex buffer
+    SDL_GPUCommandBuffer* uploadCmdBuf = SDL_AcquireGPUCommandBuffer(context->device);
+    SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(uploadCmdBuf);
+
+    SDL_UploadToGPUBuffer(copyPass, &transferBufferLocation, &vertexBufferRegion, false);
+
+    SDL_EndGPUCopyPass(copyPass);
+    SDL_SubmitGPUCommandBuffer(uploadCmdBuf);
+    SDL_ReleaseGPUTransferBuffer(context->device, transferBuffer);
 
     return 0;
 }
@@ -115,3 +243,4 @@ void Demo001_Basics_BasicTriangle::Quit(Context* context) {
 
     CommonQuit(context);
 }
+

@@ -15,7 +15,7 @@ struct PositionVertex
 struct PositionColorVertex
 {
     float x, y, z;
-    Uint8 r, g, b;
+    Uint8 r, g, b, a;
 };
 
 struct PositionTextureVertex

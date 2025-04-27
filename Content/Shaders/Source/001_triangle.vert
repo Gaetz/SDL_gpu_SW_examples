@@ -3,7 +3,7 @@
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec4 inColor;
 
-layout (binding = 0) uniform UBO 
+layout (set = 1, binding = 0) uniform UBO
 {
 	mat4 projectionMatrix;
 	mat4 modelMatrix;
@@ -16,7 +16,6 @@ out gl_PerVertex
 {
     vec4 gl_Position;   
 };
-
 
 void main() 
 {
