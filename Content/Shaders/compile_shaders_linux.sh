@@ -22,6 +22,8 @@ SPIRV_DIR="./Compiled/SPIRV"
 HLSL_DIR="./Compiled/HLSL"
 MSL_DIR="./Compiled/MSL"
 
+echo "-- Transpiling shaders"
+
 # Create destination directories if they don't exist
 mkdir -p "$SPIRV_DIR" "$HLSL_DIR" "$MSL_DIR"
 
@@ -75,3 +77,9 @@ for spirv_file in "$SPIRV_DIR"/*.spv; do
         echo "Converted $spirv_file to MSL: $msl_file"
     fi
 done
+
+# Copy to the cmake build directory
+echo "-- Copying compiled shaders to the cmake build directory"
+CMAKE_BUILD_DIR="../../cmake-build-debug"
+OUTPUT_DIR="$CMAKE_BUILD_DIR/Content/Shaders"
+cp -r -v "Compiled" "$OUTPUT_DIR"

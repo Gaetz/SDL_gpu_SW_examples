@@ -5,9 +5,7 @@ using namespace metal;
 
 struct UBO
 {
-    float4x4 projectionMatrix;
-    float4x4 modelMatrix;
-    float4x4 viewMatrix;
+    float4x4 mvp;
 };
 
 struct main0_out
@@ -26,7 +24,7 @@ vertex main0_out main0(main0_in in [[stage_in]], constant UBO& ubo [[buffer(0)]]
 {
     main0_out out = {};
     out.outColor = in.inColor.xyz;
-    out.gl_Position = ((ubo.projectionMatrix * ubo.viewMatrix) * ubo.modelMatrix) * float4(in.inPos, 1.0);
+    out.gl_Position = ubo.mvp * float4(in.inPos, 1.0);
     return out;
 }
 

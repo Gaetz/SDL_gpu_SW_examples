@@ -1,8 +1,6 @@
 cbuffer UBO : register(b0, space1)
 {
-    row_major float4x4 ubo_projectionMatrix : packoffset(c0);
-    row_major float4x4 ubo_modelMatrix : packoffset(c4);
-    row_major float4x4 ubo_viewMatrix : packoffset(c8);
+    row_major float4x4 ubo_mvp : packoffset(c0);
 };
 
 
@@ -26,7 +24,7 @@ struct SPIRV_Cross_Output
 void main_inner()
 {
     outColor = inColor.xyz;
-    gl_Position = mul(float4(inPos, 1.0f), mul(ubo_modelMatrix, mul(ubo_viewMatrix, ubo_projectionMatrix)));
+    gl_Position = mul(float4(inPos, 1.0f), ubo_mvp);
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)

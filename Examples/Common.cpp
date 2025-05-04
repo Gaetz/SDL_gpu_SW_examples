@@ -8,7 +8,7 @@ int CommonInit(Context* context, SDL_WindowFlags windowFlags)
 {
     context->device = SDL_CreateGPUDevice(
         SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL,
-        false,
+        true,
         nullptr);
 
     if (context->device == nullptr)

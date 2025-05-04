@@ -4,6 +4,7 @@
 
 #include "Demo001_Basics_BasicTriangle.hpp"
 
+
 int main(int argc, char **argv) {
     Context context {};
 
@@ -15,18 +16,18 @@ int main(int argc, char **argv) {
 
     InitializeAssetLoader(&context);
 
-
-
     Scene* scene = new Demo001_Basics_BasicTriangle();
     scene->Init(&context);
 
     Uint64 previousTime = 0;
+    Uint64 currentTime = 0;
 
     bool running = true;
     while (running) {
 
         // Compute delta time
-        Uint64 currentTime = SDL_GetTicks();
+        previousTime = currentTime;
+        currentTime = SDL_GetTicks();
         context.deltaTime = (float)(currentTime - previousTime) / 1000.0f;
 
         // Main loop
