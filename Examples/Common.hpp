@@ -9,24 +9,21 @@
 
 struct Context
 {
-    const char* example_name;
-    const char* base_path;
-    SDL_Window* window;
-    SDL_GPUDevice* device;
-    bool left_pressed;
-    bool right_pressed;
-    bool down_pressed;
-    bool up_pressed;
-    float delta_time;
+    const char* example_name_{};
+    const char* base_path_{};
+    SDL_Window* window_ = nullptr;
+    SDL_GPUDevice* device_ = nullptr;
+    bool left_pressed_{};
+    bool right_pressed_{};
+    bool down_pressed_{};
+    bool up_pressed_{};
+    float delta_time_{};
 };
 
-int CommonInit(Context* context, SDL_WindowFlags window_flags);
+int CommonInit(Context& context, SDL_WindowFlags window_flags);
 
-void InitializeAssetLoader(Context* context);
+void InitializeAssetLoader(Context& context);
 
-SDL_GPUShader* LoadShader(SDL_GPUDevice* device, const char* base_path, const char* shader_filename,
-                          Uint32 sampler_count, Uint32 uniform_buffer_count, Uint32 storage_buffer_count, Uint32 storage_texture_count);
-
-void CommonQuit(Context* context);
+void CommonQuit(const Context& context);
 
 #endif //COMMON_HPP

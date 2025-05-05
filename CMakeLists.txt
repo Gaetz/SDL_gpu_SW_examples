@@ -28,6 +28,9 @@ add_executable(SDL_gpu_examples
         Examples/Main.cpp
         Examples/Common.cpp
         Examples/Demo001_Basics_BasicTriangle.cpp
+        Examples/Demo003_Basics_Pipelines.cpp
+        Examples/Shader.cpp
+        Examples/Shader.hpp
 )
 
 target_include_directories(SDL_gpu_examples

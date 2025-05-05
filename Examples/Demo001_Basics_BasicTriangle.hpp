@@ -12,15 +12,16 @@
 class Demo001_Basics_BasicTriangle : public Scene
 {
 public:
-    int Init(Context* context) override;
-    int Update(Context* context) override;
-    int Draw(Context* context) override;
-    void Quit(Context* context) override;
+    int Init(const Context& context) override;
+    void Update(const Context& context) override;
+    void Draw(const Context& context) override;
+    void Quit(const Context& context) override;
 
 private:
+    glm::mat4 mvp_{};
+
     SDL_GPUGraphicsPipeline* pipeline_ = nullptr;
     SDL_GPUBuffer* vertex_buffer_ = nullptr;
-    glm::mat4 mvp_ = {};
 };
 
 #endif //DEMO001BASICSBASICTRIANGLE_HPP
