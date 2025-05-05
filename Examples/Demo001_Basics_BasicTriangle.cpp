@@ -9,6 +9,7 @@
 #include "Data.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Shader.hpp"
+#include "TransferBuffer.hpp"
 
 // Example with an instanced vertex buffer, if we donc want to use a big uniform
 //https://github.com/TheSpydog/SDL_gpu_examples/blob/93d94af8a9008309e99ca1b6b415476685c66501/Examples/PullSpriteBatch.c
@@ -17,8 +18,7 @@ int Demo001_Basics_BasicTriangle::Init(const Context& context)
 {
     // Create the shaders
     Shader vertex_shader{
-        context.device_, context.base_path_, "001_triangle.vert",
-        0, 1, 0, 0
+        context.device_, context.base_path_, "001_triangle.vert", 0, 1, 0, 0
     };
     if (!vertex_shader.IsValid()) return -1;
 
@@ -48,50 +48,26 @@ int Demo001_Basics_BasicTriangle::Init(const Context& context)
     pipeline_.SetTargetInfo(color_target_descriptions);
     pipeline_.Create();
 
-
-    // Create the vertex buffer
-    SDL_GPUBufferCreateInfo vertex_buffer_create_info = {
-        .usage = SDL_GPU_BUFFERUSAGE_VERTEX,
-        .size = sizeof(PositionColorVertex) * 3
-    };
-    vertex_buffer_ = SDL_CreateGPUBuffer(context.device_, &vertex_buffer_create_info);
+    // Setup the vertex buffer
+    vertex_buffer_.SetDevice(context.device_);
+    vertex_buffer_.SetSize(sizeof(PositionColorVertex) * 3);
+    vertex_buffer_.SetUsageFlags(SDL_GPU_BUFFERUSAGE_VERTEX);
+    vertex_buffer_.Create();
 
     // To get data into the vertex buffer, we have to use a transfer buffer
-    constexpr SDL_GPUTransferBufferCreateInfo transfer_buffer_create_info = {
-        .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-        .size = sizeof(PositionColorVertex) * 3
-    };
-    SDL_GPUTransferBuffer* transfer_buffer = SDL_CreateGPUTransferBuffer(
-        context.device_, &transfer_buffer_create_info);
+    TransferBuffer transfer_buffer{context.device_, sizeof(PositionColorVertex) * 3, SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD};
 
     // Map the transfer buffer and fill it with data (data is bound to the transfer buffer)
-    const auto transferData = static_cast<PositionColorVertex*>(SDL_MapGPUTransferBuffer(
-        context.device_, transfer_buffer, false));
+    const auto transferData = transfer_buffer.Map<PositionColorVertex>();
     transferData[0] = (PositionColorVertex){-0.5, -0.5, 0, 255, 0, 0, 255};
     transferData[1] = (PositionColorVertex){0, 0.5, 0, 0, 0, 0, 255};
     transferData[2] = (PositionColorVertex){0.5, -0.5, 0, 0, 255, 0, 255};
-    SDL_UnmapGPUTransferBuffer(context.device_, transfer_buffer);
+    transfer_buffer.Unmap();
 
     // Upload the transfer data to the vertex buffer
-    const SDL_GPUTransferBufferLocation source_buffer = {
-        .transfer_buffer = transfer_buffer,
-        .offset = 0
-    };
-    const SDL_GPUBufferRegion destination_buffer = {
-        .buffer = vertex_buffer_,
-        .offset = 0,
-        .size = sizeof(PositionColorVertex) * 3
-    };
-
-    // Upload the transfer data to the vertex buffer
-    SDL_GPUCommandBuffer* upload_cmd_buf = SDL_AcquireGPUCommandBuffer(context.device_);
-    SDL_GPUCopyPass* copy_pass = SDL_BeginGPUCopyPass(upload_cmd_buf);
-
-    SDL_UploadToGPUBuffer(copy_pass, &source_buffer, &destination_buffer, false);
-
-    SDL_EndGPUCopyPass(copy_pass);
-    SDL_SubmitGPUCommandBuffer(upload_cmd_buf);
-    SDL_ReleaseGPUTransferBuffer(context.device_, transfer_buffer);
+    transfer_buffer.AddSourceUpload(0);
+    transfer_buffer.AddDestinationUpload(vertex_buffer_, 0, sizeof(PositionColorVertex) * 3);
+    transfer_buffer.Upload();
 
     // Default MVP matrix
     mvp_ = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f) *
@@ -134,8 +110,8 @@ void Demo001_Basics_BasicTriangle::Draw(const Context& context)
         SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(command_buffer, &color_target_info, 1, nullptr);
         pipeline_.Bind(render_pass);
         SDL_PushGPUVertexUniformData(command_buffer, 0, &mvp_, sizeof(mvp_));
-        SDL_GPUBufferBinding vertex_bindings = {.buffer = vertex_buffer_, .offset = 0};
-        SDL_BindGPUVertexBuffers(render_pass, 0, &vertex_bindings, 1);
+        vertex_buffer_.AddVertexBinding(0);
+        vertex_buffer_.BindVertexBuffer(render_pass, 0);
         SDL_DrawGPUPrimitives(render_pass, 3, 1, 0, 0);
         SDL_EndGPURenderPass(render_pass);
     }

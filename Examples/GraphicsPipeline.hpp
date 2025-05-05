@@ -40,6 +40,7 @@ class GraphicsPipeline
 {
 public:
     GraphicsPipeline() = default;
+    ~GraphicsPipeline();
 
     SDL_GPUGraphicsPipeline* Create();
     void Bind(SDL_GPURenderPass*) const;

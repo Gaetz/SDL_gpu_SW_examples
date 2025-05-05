@@ -30,10 +30,9 @@ add_executable(SDL_gpu_examples
         Examples/Demo001_Basics_BasicTriangle.cpp
         Examples/Demo003_Basics_Pipelines.cpp
         Examples/Shader.cpp
-        Examples/Shader.hpp
         Examples/GraphicsPipeline.cpp
-        Examples/GraphicsPipeline.hpp
-        Examples/Defines.hpp
+        Examples/Buffer.cpp
+        Examples/TransferBuffer.cpp
 )
 
 target_include_directories(SDL_gpu_examples

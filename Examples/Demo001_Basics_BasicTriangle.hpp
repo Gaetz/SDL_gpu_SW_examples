@@ -7,6 +7,7 @@
 
 #include <glm/ext/matrix_float4x4.hpp>
 
+#include "Buffer.hpp"
 #include "GraphicsPipeline.hpp"
 #include "Scene.hpp"
 
@@ -21,8 +22,9 @@ public:
 private:
     glm::mat4 mvp_{};
 
-    GraphicsPipeline pipeline_;
-    SDL_GPUBuffer* vertex_buffer_ = nullptr;
+    GraphicsPipeline pipeline_{};
+    //SDL_GPUBuffer* vertex_buffer_ = nullptr;
+    Buffer vertex_buffer_{};
 };
 
 #endif //DEMO001BASICSBASICTRIANGLE_HPP
