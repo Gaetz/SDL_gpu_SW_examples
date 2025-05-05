@@ -16,65 +16,38 @@
 int Demo001_Basics_BasicTriangle::Init(const Context& context)
 {
     // Create the shaders
-    const auto vertex_shader = std::make_unique<Shader>(
-        context.device_, context.base_path_, "001_triangle.vert", 0, 1, 0, 0);
-    if (!vertex_shader->IsValid()) return -1;
+    Shader vertex_shader{
+        context.device_, context.base_path_, "001_triangle.vert",
+        0, 1, 0, 0
+    };
+    if (!vertex_shader.IsValid()) return -1;
 
 
-    const auto fragment_shader = std::make_unique<Shader>(context.device_, context.base_path_,
-                                                "001_triangle.frag", 0, 0, 0, 0);
-    if (!fragment_shader->IsValid()) return -1;
+    Shader fragment_shader{
+        context.device_, context.base_path_, "001_triangle.frag", 0, 0, 0, 0
+    };
+    if (!fragment_shader.IsValid()) return -1;
 
     // Create the pipelines
-    SDL_GPUGraphicsPipelineCreateInfo pipeline_create_info = {
-        .vertex_shader = vertex_shader->GetShaderPtr(),
-        .fragment_shader = fragment_shader->GetShaderPtr(),
-        .vertex_input_state = SDL_GPUVertexInputState{
-            .vertex_buffer_descriptions = new SDL_GPUVertexBufferDescription[1]{
-                {
-                    .slot = 0,
-                    .pitch = sizeof(PositionColorVertex),
-                    .input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX,
-                    .instance_step_rate = 0,
-                }
-            },
-            .num_vertex_buffers = 1,
-            .vertex_attributes = new SDL_GPUVertexAttribute[2]{
-                {
-                    .location = 0,
-                    .buffer_slot = 0,
-                    .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3,
-                    .offset = 0
-                },
-                {
-                    .location = 1,
-                    .buffer_slot = 0,
-                    .format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM,
-                    .offset = sizeof(float) * 3
-                }
-            },
-            .num_vertex_attributes = 2,
-        },
-        .primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
-
-        .target_info = {
-            .color_target_descriptions = new SDL_GPUColorTargetDescription[1]{
-                {
-                    .format = SDL_GetGPUSwapchainTextureFormat(context.device_, context.window_)
-                }
-            },
-            .num_color_targets = 1,
-        },
-
+    pipeline_.SetDevice(context.device_);
+    pipeline_.SetVertexShader(vertex_shader);
+    pipeline_.SetFragmentShader(fragment_shader);
+    const Vector<SDL_GPUVertexBufferDescription> vertex_buffer_descriptions = {
+        {0, sizeof(PositionColorVertex), SDL_GPU_VERTEXINPUTRATE_VERTEX, 0}
     };
+    const Vector<SDL_GPUVertexAttribute> vertex_attributes = {
+        {0, 0, SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, 0},
+        {1, 0, SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM, sizeof(float) * 3}
+    };
+    pipeline_.SetVertexInputState(vertex_buffer_descriptions, vertex_attributes);
+    pipeline_.SetPrimitiveType(PrimitiveType::TriangleList);
+    pipeline_.SetRasterizerState(FillMode::Fill);
+    const Vector<SDL_GPUColorTargetDescription> color_target_descriptions = {
+        {SDL_GetGPUSwapchainTextureFormat(context.device_, context.window_)}
+    };
+    pipeline_.SetTargetInfo(color_target_descriptions);
+    pipeline_.Create();
 
-    pipeline_create_info.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
-    pipeline_ = SDL_CreateGPUGraphicsPipeline(context.device_, &pipeline_create_info);
-    if (pipeline_ == nullptr)
-    {
-        SDL_Log("Failed to create fill pipeline_!");
-        return -1;
-    }
 
     // Create the vertex buffer
     SDL_GPUBufferCreateInfo vertex_buffer_create_info = {
@@ -88,14 +61,15 @@ int Demo001_Basics_BasicTriangle::Init(const Context& context)
         .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
         .size = sizeof(PositionColorVertex) * 3
     };
-    SDL_GPUTransferBuffer* transfer_buffer = SDL_CreateGPUTransferBuffer(context.device_, &transfer_buffer_create_info);
+    SDL_GPUTransferBuffer* transfer_buffer = SDL_CreateGPUTransferBuffer(
+        context.device_, &transfer_buffer_create_info);
 
     // Map the transfer buffer and fill it with data (data is bound to the transfer buffer)
     const auto transferData = static_cast<PositionColorVertex*>(SDL_MapGPUTransferBuffer(
         context.device_, transfer_buffer, false));
     transferData[0] = (PositionColorVertex){-0.5, -0.5, 0, 255, 0, 0, 255};
-    transferData[1] = (PositionColorVertex){0.5, -0.5, 0, 0, 255, 0, 255};
-    transferData[2] = (PositionColorVertex){0, 0.5, 0, 0, 0, 0, 255};
+    transferData[1] = (PositionColorVertex){0, 0.5, 0, 0, 0, 0, 255};
+    transferData[2] = (PositionColorVertex){0.5, -0.5, 0, 0, 255, 0, 255};
     SDL_UnmapGPUTransferBuffer(context.device_, transfer_buffer);
 
     // Upload the transfer data to the vertex buffer
@@ -128,7 +102,6 @@ int Demo001_Basics_BasicTriangle::Init(const Context& context)
 
 void Demo001_Basics_BasicTriangle::Update(const Context& context)
 {
-
 }
 
 void Demo001_Basics_BasicTriangle::Draw(const Context& context)
@@ -141,7 +114,8 @@ void Demo001_Basics_BasicTriangle::Draw(const Context& context)
     }
 
     SDL_GPUTexture* swapchain_texture;
-    if (!SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, context.window_, &swapchain_texture, nullptr, nullptr))
+    if (!SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, context.window_, &swapchain_texture, nullptr,
+                                               nullptr))
     {
         SDL_Log("WaitAndAcquireGPUSwapchainTexture failed: %s", SDL_GetError());
         return;
@@ -158,7 +132,7 @@ void Demo001_Basics_BasicTriangle::Draw(const Context& context)
 
         // Render pass
         SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(command_buffer, &color_target_info, 1, nullptr);
-        SDL_BindGPUGraphicsPipeline(render_pass, pipeline_);
+        pipeline_.Bind(render_pass);
         SDL_PushGPUVertexUniformData(command_buffer, 0, &mvp_, sizeof(mvp_));
         SDL_GPUBufferBinding vertex_bindings = {.buffer = vertex_buffer_, .offset = 0};
         SDL_BindGPUVertexBuffers(render_pass, 0, &vertex_bindings, 1);
@@ -171,5 +145,5 @@ void Demo001_Basics_BasicTriangle::Draw(const Context& context)
 
 void Demo001_Basics_BasicTriangle::Quit(const Context& context)
 {
-    SDL_ReleaseGPUGraphicsPipeline(context.device_, pipeline_);
+    pipeline_.Release();
 }

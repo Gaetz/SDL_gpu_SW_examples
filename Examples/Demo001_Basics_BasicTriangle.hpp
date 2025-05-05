@@ -7,6 +7,7 @@
 
 #include <glm/ext/matrix_float4x4.hpp>
 
+#include "GraphicsPipeline.hpp"
 #include "Scene.hpp"
 
 class Demo001_Basics_BasicTriangle : public Scene
@@ -20,7 +21,7 @@ public:
 private:
     glm::mat4 mvp_{};
 
-    SDL_GPUGraphicsPipeline* pipeline_ = nullptr;
+    GraphicsPipeline pipeline_;
     SDL_GPUBuffer* vertex_buffer_ = nullptr;
 };
 

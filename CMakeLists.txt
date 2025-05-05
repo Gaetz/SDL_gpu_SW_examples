@@ -31,6 +31,9 @@ add_executable(SDL_gpu_examples
         Examples/Demo003_Basics_Pipelines.cpp
         Examples/Shader.cpp
         Examples/Shader.hpp
+        Examples/GraphicsPipeline.cpp
+        Examples/GraphicsPipeline.hpp
+        Examples/Defines.hpp
 )
 
 target_include_directories(SDL_gpu_examples
