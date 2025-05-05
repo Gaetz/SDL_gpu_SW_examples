@@ -23,12 +23,6 @@ void Buffer::AddVertexBinding(const u32 offset)
     vertex_bindings_.push_back({.buffer = buffer_, .offset = offset});
 }
 
-void Buffer::BindVertexBuffer(SDL_GPURenderPass* render_pass, u32 first_slot)
-{
-    SDL_BindGPUVertexBuffers(render_pass, 0, vertex_bindings_.data(), static_cast<u32>(vertex_bindings_.size()));
-    vertex_bindings_.clear();
-}
-
 void Buffer::Release() const
 {
     SDL_ReleaseGPUBuffer(device_, buffer_);

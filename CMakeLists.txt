@@ -33,6 +33,8 @@ add_executable(SDL_gpu_examples
         Examples/GraphicsPipeline.cpp
         Examples/Buffer.cpp
         Examples/TransferBuffer.cpp
+        Examples/RenderPass.cpp
+        Examples/RenderPass.hpp
 )
 
 target_include_directories(SDL_gpu_examples

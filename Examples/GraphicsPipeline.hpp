@@ -43,9 +43,9 @@ public:
     ~GraphicsPipeline();
 
     SDL_GPUGraphicsPipeline* Create();
-    void Bind(SDL_GPURenderPass*) const;
     void Release();
 
+    SDL_GPUGraphicsPipeline* GetPipelinePtr() const { return pipeline_; }
     void SetDevice(SDL_GPUDevice* device) { device_ = device; }
     void SetVertexShader(const Shader& shader);
     void SetFragmentShader(const Shader& shader);

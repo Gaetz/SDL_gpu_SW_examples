@@ -4,6 +4,7 @@
 
 #include "GraphicsPipeline.hpp"
 
+#include "RenderPass.hpp"
 #include "SDL3/SDL_log.h"
 
 GraphicsPipeline::~GraphicsPipeline()
@@ -20,11 +21,6 @@ SDL_GPUGraphicsPipeline* GraphicsPipeline::Create()
         return nullptr;
     }
     return pipeline_;
-}
-
-void GraphicsPipeline::Bind(SDL_GPURenderPass* render_pass) const
-{
-    SDL_BindGPUGraphicsPipeline(render_pass, pipeline_);
 }
 
 void GraphicsPipeline::Release()

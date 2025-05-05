@@ -53,6 +53,8 @@ int Demo001_Basics_BasicTriangle::Init(const Context& context)
     vertex_buffer_.SetSize(sizeof(PositionColorVertex) * 3);
     vertex_buffer_.SetUsageFlags(SDL_GPU_BUFFERUSAGE_VERTEX);
     vertex_buffer_.Create();
+    vertex_buffer_.AddVertexBinding(0);
+
 
     // To get data into the vertex buffer, we have to use a transfer buffer
     TransferBuffer transfer_buffer{context.device_, sizeof(PositionColorVertex) * 3, SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD};
@@ -107,13 +109,13 @@ void Demo001_Basics_BasicTriangle::Draw(const Context& context)
         color_target_info.store_op = SDL_GPU_STOREOP_STORE;
 
         // Render pass
-        SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(command_buffer, &color_target_info, 1, nullptr);
-        pipeline_.Bind(render_pass);
+        render_pass_.AddColorTarget(swapchain_texture, SDL_FColor{0.0f, 0.0f, 0.2f, 1.0f}, LoadOperation::Clear, StoreOperation::Store);
+        render_pass_.Begin(command_buffer);
+        render_pass_.BindPipeline(pipeline_);
         SDL_PushGPUVertexUniformData(command_buffer, 0, &mvp_, sizeof(mvp_));
-        vertex_buffer_.AddVertexBinding(0);
-        vertex_buffer_.BindVertexBuffer(render_pass, 0);
-        SDL_DrawGPUPrimitives(render_pass, 3, 1, 0, 0);
-        SDL_EndGPURenderPass(render_pass);
+        render_pass_.BindVertexBuffer(vertex_buffer_, 0);
+        render_pass_.DrawPrimitives(3, 1, 0, 0);
+        render_pass_.End();
     }
 
     SDL_SubmitGPUCommandBuffer(command_buffer);
@@ -121,5 +123,5 @@ void Demo001_Basics_BasicTriangle::Draw(const Context& context)
 
 void Demo001_Basics_BasicTriangle::Quit(const Context& context)
 {
-    pipeline_.Release();
+
 }

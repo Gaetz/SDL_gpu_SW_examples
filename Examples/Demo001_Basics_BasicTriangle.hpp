@@ -9,6 +9,7 @@
 
 #include "Buffer.hpp"
 #include "GraphicsPipeline.hpp"
+#include "RenderPass.hpp"
 #include "Scene.hpp"
 
 class Demo001_Basics_BasicTriangle : public Scene
@@ -23,8 +24,8 @@ private:
     glm::mat4 mvp_{};
 
     GraphicsPipeline pipeline_{};
-    //SDL_GPUBuffer* vertex_buffer_ = nullptr;
     Buffer vertex_buffer_{};
+    RenderPass render_pass_{};
 };
 
 #endif //DEMO001BASICSBASICTRIANGLE_HPP
