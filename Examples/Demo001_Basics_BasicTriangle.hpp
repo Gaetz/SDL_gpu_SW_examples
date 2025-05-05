@@ -18,9 +18,9 @@ public:
     void Quit(Context* context) override;
 
 private:
-    SDL_GPUGraphicsPipeline* pipeline = nullptr;
-    SDL_GPUBuffer* vertexBuffer = nullptr;
-    glm::mat4 mvp = {};
+    SDL_GPUGraphicsPipeline* pipeline_ = nullptr;
+    SDL_GPUBuffer* vertex_buffer_ = nullptr;
+    glm::mat4 mvp_ = {};
 };
 
 #endif //DEMO001BASICSBASICTRIANGLE_HPP

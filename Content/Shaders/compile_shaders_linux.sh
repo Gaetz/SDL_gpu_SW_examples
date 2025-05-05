@@ -64,7 +64,7 @@ for spirv_file in "$SPIRV_DIR"/*.spv; do
         elif [ "$extension" = "frag" ]; then
             stage="fragment"
         else
-            echo "Unknown shader type for $spirv_file"
+            echo "Unknown shader type for $spirv_file"s
             continue
         fi
 

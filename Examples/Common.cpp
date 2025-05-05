@@ -4,7 +4,7 @@
 
 #include "Common.hpp"
 
-int CommonInit(Context* context, SDL_WindowFlags windowFlags)
+int CommonInit(Context* context, SDL_WindowFlags window_flags)
 {
     context->device = SDL_CreateGPUDevice(
         SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL,
@@ -17,7 +17,7 @@ int CommonInit(Context* context, SDL_WindowFlags windowFlags)
         return -1;
     }
 
-    context->window = SDL_CreateWindow(context->exampleName, 1280, 720, windowFlags);
+    context->window = SDL_CreateWindow(context->example_name, 1280, 720, window_flags);
     if (context->window == nullptr)
     {
         SDL_Log("CreateWindow failed: %s", SDL_GetError());
@@ -34,25 +34,25 @@ int CommonInit(Context* context, SDL_WindowFlags windowFlags)
 }
 
 void InitializeAssetLoader(Context* context) {
-    context->basePath = SDL_GetBasePath();
+    context->base_path = SDL_GetBasePath();
 }
 
 SDL_GPUShader* LoadShader(
         SDL_GPUDevice* device,
-        const char* basePath,
-        const char* shaderFilename,
-        Uint32 samplerCount,
-        Uint32 uniformBufferCount,
-        Uint32 storageBufferCount,
-        Uint32 storageTextureCount
+        const char* base_path,
+        const char* shader_filename,
+        Uint32 sampler_count,
+        Uint32 uniform_buffer_count,
+        Uint32 storage_buffer_count,
+        Uint32 storage_texture_count
 ) {
     // Auto-detect the shader stage from the file name for convenience
     SDL_GPUShaderStage stage;
-    if (SDL_strstr(shaderFilename, ".vert"))
+    if (SDL_strstr(shader_filename, ".vert"))
     {
         stage = SDL_GPU_SHADERSTAGE_VERTEX;
     }
-    else if (SDL_strstr(shaderFilename, ".frag"))
+    else if (SDL_strstr(shader_filename, ".frag"))
     {
         stage = SDL_GPU_SHADERSTAGE_FRAGMENT;
     }
@@ -68,15 +68,15 @@ SDL_GPUShader* LoadShader(
     const char *entrypoint;
 
     if (backendFormats & SDL_GPU_SHADERFORMAT_SPIRV) {
-        SDL_snprintf(fullPath, sizeof(fullPath), "%sContent/Shaders/Compiled/SPIRV/%s.spv", basePath, shaderFilename);
+        SDL_snprintf(fullPath, sizeof(fullPath), "%sContent/Shaders/Compiled/SPIRV/%s.spv", base_path, shader_filename);
         format = SDL_GPU_SHADERFORMAT_SPIRV;
         entrypoint = "main";
     } else if (backendFormats & SDL_GPU_SHADERFORMAT_MSL) {
-        SDL_snprintf(fullPath, sizeof(fullPath), "%sContent/Shaders/Compiled/MSL/%s.msl", basePath, shaderFilename);
+        SDL_snprintf(fullPath, sizeof(fullPath), "%sContent/Shaders/Compiled/MSL/%s.msl", base_path, shader_filename);
         format = SDL_GPU_SHADERFORMAT_MSL;
         entrypoint = "main0";
     } else if (backendFormats & SDL_GPU_SHADERFORMAT_DXIL) {
-        SDL_snprintf(fullPath, sizeof(fullPath), "%sContent/Shaders/Compiled/DXIL/%s.dxil", basePath, shaderFilename);
+        SDL_snprintf(fullPath, sizeof(fullPath), "%sContent/Shaders/Compiled/DXIL/%s.dxil", base_path, shader_filename);
         format = SDL_GPU_SHADERFORMAT_DXIL;
         entrypoint = "main";
     } else {
@@ -98,10 +98,10 @@ SDL_GPUShader* LoadShader(
             .entrypoint = entrypoint,
             .format = format,
             .stage = stage,
-            .num_samplers = samplerCount,
-            .num_storage_textures = storageTextureCount,
-            .num_storage_buffers = storageBufferCount,
-            .num_uniform_buffers = uniformBufferCount
+            .num_samplers = sampler_count,
+            .num_storage_textures = storage_texture_count,
+            .num_storage_buffers = storage_buffer_count,
+            .num_uniform_buffers = uniform_buffer_count
     };
     SDL_GPUShader* shader = SDL_CreateGPUShader(device, &shaderInfo);
     if (shader == nullptr)

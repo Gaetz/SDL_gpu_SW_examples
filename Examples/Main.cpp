@@ -19,16 +19,16 @@ int main(int argc, char **argv) {
     Scene* scene = new Demo001_Basics_BasicTriangle();
     scene->Init(&context);
 
-    Uint64 previousTime = 0;
-    Uint64 currentTime = 0;
+    Uint64 previous_time = 0;
+    Uint64 current_time = 0;
 
     bool running = true;
     while (running) {
 
         // Compute delta time
-        previousTime = currentTime;
-        currentTime = SDL_GetTicks();
-        context.deltaTime = (float)(currentTime - previousTime) / 1000.0f;
+        previous_time = current_time;
+        current_time = SDL_GetTicks();
+        context.delta_time = (float)(current_time - previous_time) / 1000.0f;
 
         // Main loop
         SDL_Event event;
@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
         scene->Draw(&context);
 
         // Cap frame rate
-        if (context.deltaTime < 0.016f) {
-            SDL_Delay((Uint32)((0.016f - context.deltaTime) * 1000));
+        if (context.delta_time < 0.016f) {
+            SDL_Delay(static_cast<Uint32>((0.016f - context.delta_time) * 1000));
         }
     }
     scene->Quit(&context);
