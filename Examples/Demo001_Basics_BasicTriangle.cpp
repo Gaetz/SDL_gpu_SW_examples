@@ -59,9 +59,9 @@ int Demo001_Basics_BasicTriangle::Init(const Context& context)
 
     // Map the transfer buffer and fill it with data (data is bound to the transfer buffer)
     const auto transferData = transfer_buffer.Map<PositionColorVertex>();
-    transferData[0] = (PositionColorVertex){-0.5, -0.5, 0, 255, 0, 0, 255};
-    transferData[1] = (PositionColorVertex){0, 0.5, 0, 0, 0, 0, 255};
-    transferData[2] = (PositionColorVertex){0.5, -0.5, 0, 0, 255, 0, 255};
+    transferData[0] = PositionColorVertex {-0.5, -0.5, 0, 255, 0, 0, 255};
+    transferData[1] = PositionColorVertex {0, 0.5, 0, 0, 0, 0, 255};
+    transferData[2] = PositionColorVertex {0.5, -0.5, 0, 0, 255, 0, 255};
     transfer_buffer.Unmap();
 
     // Upload the transfer data to the vertex buffer
