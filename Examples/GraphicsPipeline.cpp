@@ -7,11 +7,6 @@
 #include "RenderPass.hpp"
 #include "SDL3/SDL_log.h"
 
-GraphicsPipeline::~GraphicsPipeline()
-{
-    Release();
-}
-
 SDL_GPUGraphicsPipeline* GraphicsPipeline::Create()
 {
     pipeline_ = SDL_CreateGPUGraphicsPipeline(device_, &pipeline_create_info_);

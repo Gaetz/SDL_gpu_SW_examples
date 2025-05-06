@@ -12,8 +12,7 @@ class RenderPass {
 public:
     RenderPass() = default;
 
-    SDL_GPURenderPass* GetRenderPassPointer() const { return render_pass_; }
-
+    [[nodiscard]] SDL_GPURenderPass* GetRenderPassPointer() const { return render_pass_; }
 
     void AddColorTarget(SDL_GPUTexture *swapchain_texture, const SDL_FColor& clear_color,
                         LoadOperation load_op, StoreOperation store_op);
@@ -22,7 +21,7 @@ public:
     void End();
 
     void BindPipeline(const class GraphicsPipeline& pipeline) const;
-    void BindVertexBuffer(const class Buffer& buffer, const u32 first_slot) const;
+    void BindVertexBuffer(const class Buffer& buffer, u32 first_slot) const;
 
 
 

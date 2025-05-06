@@ -43,6 +43,6 @@ void RenderPass::BindPipeline(const GraphicsPipeline& pipeline) const
 
 void RenderPass::BindVertexBuffer(const Buffer& buffer, const u32 first_slot) const
 {
-    const Vector<SDL_GPUBufferBinding> vertex_bindings = buffer.GetVertexBindings();
+    const Vector<SDL_GPUBufferBinding>& vertex_bindings = buffer.GetVertexBindings();
     SDL_BindGPUVertexBuffers(render_pass_, first_slot, vertex_bindings.data(), static_cast<u32>(vertex_bindings.size()));
 }

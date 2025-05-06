@@ -4,8 +4,6 @@
 
 #include "Demo001_Basics_BasicTriangle.hpp"
 
-#include <memory>
-
 #include "Data.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Shader.hpp"
@@ -123,5 +121,6 @@ void Demo001_Basics_BasicTriangle::Draw(const Context& context)
 
 void Demo001_Basics_BasicTriangle::Quit(const Context& context)
 {
-
+    pipeline_.Release();
+    vertex_buffer_.Release();
 }

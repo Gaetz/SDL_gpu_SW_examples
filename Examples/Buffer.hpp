@@ -11,7 +11,7 @@ class Buffer
 {
 public:
     Buffer() = default;
-    ~Buffer();
+    ~Buffer() = default;
 
     [[nodiscard]] SDL_GPUBuffer* GetBufferPtr() const { return buffer_; }
     [[nodiscard]] const Vector<SDL_GPUBufferBinding>& GetVertexBindings() const { return vertex_bindings_; }
@@ -20,7 +20,7 @@ public:
     void SetUsageFlags(const SDL_GPUBufferUsageFlags usage_flags) { usage_flags_ = usage_flags; }
 
     void Create();
-    void AddVertexBinding(const u32 offset);
+    void AddVertexBinding(u32 offset);
     void Release() const;
 
     SDL_GPUBuffer* buffer_ = nullptr;

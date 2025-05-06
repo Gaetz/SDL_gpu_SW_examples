@@ -4,7 +4,6 @@
 
 #include "TransferBuffer.hpp"
 #include "Buffer.hpp"
-#include "SDL3/SDL_log.h"
 
 TransferBuffer::TransferBuffer(SDL_GPUDevice* device, const u32 size, SDL_GPUTransferBufferUsage usage)
     : device_(device), size_(size), usage_(usage)
@@ -14,7 +13,6 @@ TransferBuffer::TransferBuffer(SDL_GPUDevice* device, const u32 size, SDL_GPUTra
         .size = size
     };
     transfer_buffer_ = SDL_CreateGPUTransferBuffer(device, &create_info);
-    SDL_Log(SDL_GetError());
 }
 
 TransferBuffer::~TransferBuffer()

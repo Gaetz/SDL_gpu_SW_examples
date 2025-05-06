@@ -4,11 +4,6 @@
 
 #include "Buffer.hpp"
 
-Buffer::~Buffer()
-{
-    Release();
-}
-
 void Buffer::Create()
 {
     const SDL_GPUBufferCreateInfo buffer_create_info = {

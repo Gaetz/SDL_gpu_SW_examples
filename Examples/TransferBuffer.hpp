@@ -19,7 +19,7 @@ public:
     TransferBuffer(SDL_GPUDevice* device, u32 size, SDL_GPUTransferBufferUsage usage);
     ~TransferBuffer();
 
-    SDL_GPUTransferBuffer* GetBufferPtr() const { return transfer_buffer_; }
+    [[nodiscard]] SDL_GPUTransferBuffer* GetBufferPtr() const { return transfer_buffer_; }
 
     template <class T>
     T* Map(const bool cycle = false)

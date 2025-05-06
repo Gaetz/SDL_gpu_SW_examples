@@ -24,6 +24,17 @@ if (NOT SDL3_FOUND)
     endif()
 endif()
 
+set(GLM_VERSION 0.9.9.8)
+find_package(glm ${GLM_VERSION} QUIET)
+if (NOT glm_FOUND)
+    FetchContent_Declare(
+            glm
+            GIT_REPOSITORY https://github.com/g-truc/glm.git
+            GIT_TAG ${GLM_VERSION}
+    )
+    FetchContent_MakeAvailable(glm)
+endif()
+
 add_executable(SDL_gpu_examples
         Examples/Main.cpp
         Examples/Common.cpp
@@ -39,6 +50,7 @@ add_executable(SDL_gpu_examples
 
 target_include_directories(SDL_gpu_examples
     PRIVATE SDL3::SDL3
+    PRIVATE ${glm_SOURCE_DIR}
 )
 
 target_link_libraries(SDL_gpu_examples

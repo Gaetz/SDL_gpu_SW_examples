@@ -40,12 +40,12 @@ class GraphicsPipeline
 {
 public:
     GraphicsPipeline() = default;
-    ~GraphicsPipeline();
+    ~GraphicsPipeline() = default;
 
     SDL_GPUGraphicsPipeline* Create();
     void Release();
 
-    SDL_GPUGraphicsPipeline* GetPipelinePtr() const { return pipeline_; }
+    [[nodiscard]] SDL_GPUGraphicsPipeline* GetPipelinePtr() const { return pipeline_; }
     void SetDevice(SDL_GPUDevice* device) { device_ = device; }
     void SetVertexShader(const Shader& shader);
     void SetFragmentShader(const Shader& shader);
