@@ -19,13 +19,14 @@
 # Define source and destination directories
 SOURCE_DIR="./Source"
 SPIRV_DIR="./Compiled/SPIRV"
-HLSL_DIR="./Compiled/HLSL"
 MSL_DIR="./Compiled/MSL"
+HLSL_DIR="./Compiled/HLSL"
+DXIL_DIR="./Compiled/DXIL"
 
 echo "-- Transpiling shaders"
 
 # Create destination directories if they don't exist
-mkdir -p "$SPIRV_DIR" "$HLSL_DIR" "$MSL_DIR"
+mkdir -p "$SPIRV_DIR" "$HLSL_DIR" "$MSL_DIR" "$DXIL_DIR"
 
 # Step 1: Compile all .vert and .frag files to SPIRV using Vulkan compiler
 for shader_file in "$SOURCE_DIR"/*.vert "$SOURCE_DIR"/*.frag; do
@@ -55,8 +56,9 @@ for spirv_file in "$SPIRV_DIR"/*.spv; do
         filename=$(basename -- "$spirv_file" .spv)
         extension="${filename##*.}" # Extract the original extension (.vert or .frag)
         base_name="${filename%.*}"  # Remove the extension to get the base name
-        hlsl_file="$HLSL_DIR/${base_name}.${extension}.hlsl"
         msl_file="$MSL_DIR/${base_name}.${extension}.msl"
+        hlsl_file="$HLSL_DIR/${base_name}.${extension}.hlsl"
+        dxil_file="$DXIL_DIR/${base_name}.${extension}.dxil"
 
         # Determine shader stage based on the original extension
         if [ "$extension" = "vert" ]; then
@@ -68,13 +70,17 @@ for spirv_file in "$SPIRV_DIR"/*.spv; do
             continue
         fi
 
+        # Convert to MSL
+        shadercross "$spirv_file" -s SPIRV -d MSL -t "$stage" -o "$msl_file"
+        echo "Converted $spirv_file to MSL: $msl_file"
+
         # Convert to HLSL
         shadercross "$spirv_file" -s SPIRV -d HLSL -t "$stage" -o "$hlsl_file"
         echo "Converted $spirv_file to HLSL: $hlsl_file"
 
-        # Convert to MSL
-        shadercross "$spirv_file" -s SPIRV -d MSL -t "$stage" -o "$msl_file"
-        echo "Converted $spirv_file to MSL: $msl_file"
+        # Convert to DXIL
+        #shadercross "$hlsl_file" -s HLSL -d DXIL -t "$stage" -o "$dxil_file"
+        #echo "Converted $hlsl_file to DXIL: $dxil_file"
     fi
 done
 
