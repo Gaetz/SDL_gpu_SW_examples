@@ -79,8 +79,8 @@ for spirv_file in "$SPIRV_DIR"/*.spv; do
         echo "Converted $spirv_file to HLSL: $hlsl_file"
 
         # Convert to DXIL
-        #shadercross "$hlsl_file" -s HLSL -d DXIL -t "$stage" -o "$dxil_file"
-        #echo "Converted $hlsl_file to DXIL: $dxil_file"
+        shadercross "$hlsl_file" -s HLSL -d DXIL -t "$stage" -o "$dxil_file"
+        echo "Converted $hlsl_file to DXIL: $dxil_file"
     fi
 done
 
