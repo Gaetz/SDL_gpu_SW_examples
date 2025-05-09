@@ -12,6 +12,11 @@
 class Demo003_Basics_Pipelines : public Scene
 {
 public:
+    struct UniformData {
+        glm::mat4 mvp;
+        glm::vec4 lightPos{ 0.0f, 2.0f, 1.0f, 0.0f };
+    } uniform_data;
+
     int Init(const Context& context) override;
     void Update(const Context& context) override;
     void Draw(const Context& context) override;

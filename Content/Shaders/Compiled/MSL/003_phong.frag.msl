@@ -1,0 +1,33 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct main0_out
+{
+    float4 outFragColor [[color(0)]];
+};
+
+struct main0_in
+{
+    float3 inNormal [[user(locn0)]];
+    float3 inColor [[user(locn1)]];
+    float3 inViewVec [[user(locn2)]];
+    float3 inLightVec [[user(locn3)]];
+};
+
+fragment main0_out main0(main0_in in [[stage_in]])
+{
+    main0_out out = {};
+    float3 color = mix(in.inColor, float3(dot(float3(0.2125999927520751953125, 0.715200006961822509765625, 0.072200000286102294921875), in.inColor)), float3(0.64999997615814208984375));
+    float3 ambient = color * float3(1.0);
+    float3 N = fast::normalize(in.inNormal);
+    float3 L = fast::normalize(in.inLightVec);
+    float3 V = fast::normalize(in.inViewVec);
+    float3 R = reflect(-L, N);
+    float3 diffuse = color * fast::max(dot(N, L), 0.0);
+    float3 specular = float3(0.3499999940395355224609375) * powr(fast::max(dot(R, V), 0.0), 32.0);
+    out.outFragColor = float4((ambient + (diffuse * 1.75)) + specular, 1.0);
+    return out;
+}
+

@@ -1,0 +1,30 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct UBO
+{
+    float4x4 mvp;
+};
+
+struct main0_out
+{
+    float3 outColor [[user(locn0)]];
+    float4 gl_Position [[position]];
+};
+
+struct main0_in
+{
+    float4 inPos [[attribute(0)]];
+    float3 inColor [[attribute(2)]];
+};
+
+vertex main0_out main0(main0_in in [[stage_in]], constant UBO& ubo [[buffer(0)]])
+{
+    main0_out out = {};
+    out.outColor = in.inColor;
+    out.gl_Position = ubo.mvp * in.inPos;
+    return out;
+}
+
